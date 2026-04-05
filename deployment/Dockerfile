@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y \
     python3.10 \
     python3-pip \
     git \
+    wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ln -s /usr/bin/python3.10 /usr/bin/python
@@ -19,5 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY tests/ ./tests/
 
+COPY deployment/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 8000
-CMD ["python", "-m", "app.main"]
+
+CMD ["/usr/local/bin/entrypoint.sh"]
