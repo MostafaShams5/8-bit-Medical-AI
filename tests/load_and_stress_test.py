@@ -25,8 +25,11 @@ async def test_concurrency(level):
         results = await asyncio.gather(*tasks)
         total_time = time.perf_counter() - start_time
         
+
         latencies = [r[0] for r in results if r[1] == 200]
         errors = len([r for r in results if r[1] != 200])
+        
+        success_rate = ((level - errors) / level) * 100
         
         return {
             "level": level,
@@ -34,14 +37,15 @@ async def test_concurrency(level):
             "throughput": level / total_time,
             "p50": statistics.median(latencies) if latencies else 0,
             "p95": statistics.quantiles(latencies, n=20)[18] if len(latencies) >= 20 else 0,
-            "errors": errors
+            "errors": errors,
+            "success_rate": success_rate
         }
 
 async def main():
     print("Initiating API Stress Test...")
     for level in CONCURRENCY_LEVELS:
         result = await test_concurrency(level)
-        print(f"Concurrency: {result['level']} | RPS: {result['throughput']:.2f} | P50: {result['p50']:.3f}s | Errors: {result['errors']}")
+        print(f"Concurrency: {result['level']} | RPS: {result['throughput']:.2f} | P50: {result['p50']:.3f}s | Errors: {result['errors']} | Success Rate: {result['success_rate']:.1f}%")
 
 if __name__ == "__main__":
     asyncio.run(main())

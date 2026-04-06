@@ -49,12 +49,16 @@ def evaluate_system():
         avg_rouge = sum(rouge_scores) / len(rouge_scores) if rouge_scores else 0.0
         hallucination_rate = hallucination_flags / len(dataset)
         
+        BASELINE_ROUGE_L = 0.31 # old test on the 7B model
+        rouge_improvement_pct = ((avg_rouge - BASELINE_ROUGE_L) / BASELINE_ROUGE_L) * 100
+        
         mlflow.log_metric("avg_rouge_l", avg_rouge)
         mlflow.log_metric("hallucination_rate", hallucination_rate)
+        mlflow.log_metric("rouge_improvement_pct", rouge_improvement_pct) # <-- ADD THIS
         
         print("\nEvaluation Complete.")
         print(f"Average ROUGE-L: {avg_rouge:.4f}")
+        print(f"Improvement over Baseline: +{rouge_improvement_pct:.1f}%")
         print(f"Hallucination Rate (Proxy): {hallucination_rate:.2%}")
-
 if __name__ == "__main__":
     evaluate_system()
